@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noah's Real Estate Investment Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1 class="logo">Noah's RE Calculator</h1>
+            <nav>
+                <span class="nav-tag">Rental Property Analyzer</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="layout">
+            <div class="form-column">
+                <!-- PROPERTY INFORMATION -->
+                <section class="card" id="property-info-section">
+                    <h2 class="section-title">Property Information</h2>
+
+                    <div class="form-group">
+                        <label class="required">Property Address</label>
+                        <input type="text" id="propertyAddress" placeholder="123 Main St, City State">
+                    </div>
+
+                    <div class="collapsible">
+                        <button class="collapsible-toggle" onclick="toggleSection(this)">
+                            <span><span class="optional-tag">Optional</span> Property Features, Description & Photo</span>
+                            <span class="chevron">&#9650;</span>
+                        </button>
+                        <div class="collapsible-content open">
+                            <div class="form-row four-col">
+                                <div class="form-group">
+                                    <label>Bedrooms:</label>
+                                    <select id="bedrooms">
+                                        <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Bathrooms:</label>
+                                    <select id="bathrooms">
+                                        <option>0</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Square Feet:</label>
+                                    <input type="number" id="sqft" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Year Built:</label>
+                                    <input type="number" id="yearBuilt" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description:</label>
+                                <textarea id="description" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PURCHASE DETAILS -->
+                <section class="card" id="purchase-details-section">
+                    <h2 class="section-title">Purchase Details</h2>
+
+                    <div class="form-row two-col">
+                        <div class="form-group">
+                            <label class="required">Purchase Price
+                                <span class="tooltip" data-tip="The total purchase price of the property.">&#9432;</span>
+                            </label>
+                            <div class="input-with-prefix">
+                                <span class="prefix">$</span>
+                                <input type="number" id="purchasePrice" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">Purchase Closing Cost
+                                <span class="tooltip" data-tip="Costs associated with closing on the purchase (title, escrow, etc). Typically 2-5% of purchase price.">&#9432;</span>
+                            </label>
+                            <div class="input-with-prefix">
+                                <span class="prefix">$</span>
+                                <input type="number" id="closingCost" value="0" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row two-col">
+                        <div class="toggle-group">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="rehabToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>I will be rehabbing this property</span>
+                        </div>
+                        <div class="toggle-group">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="itemizedClosingToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Provide itemized closing costs</span>
+                        </div>
+                    </div>
+
+                    <div id="rehabSection" class="sub-section">
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label>Estimated Rehab Cost
+                                    <span class="tooltip" data-tip="Total budget for renovations and repairs before renting.">&#9432;</span>
+                                </label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="rehabCost" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>After Repair Value (ARV)
+                                    <span class="tooltip" data-tip="Estimated market value of the property after all rehab work is completed.">&#9432;</span>
+                                </label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="arv" value="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible">
+                        <button class="collapsible-toggle" onclick="toggleSection(this)">
+                            <span><span class="optional-tag">Optional</span> Property Value Growth</span>
+                            <span class="chevron">&#9650;</span>
+                        </button>
+                        <div class="collapsible-content open">
+                            <div class="form-group">
+                                <label>Annual Property Value Growth (appreciation):
+                                    <span class="tooltip" data-tip="Expected annual appreciation rate of the property value.">&#9432;</span>
+                                </label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="appreciationRate" value="2" min="0" step="0.1">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FINANCING DETAILS -->
+                <section class="card" id="financing-section">
+                    <h2 class="section-title">Financing Details</h2>
+
+                    <div class="toggle-group" style="margin-bottom: 16px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="cashPurchaseToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>I will be purchasing with cash</span>
+                    </div>
+
+                    <div id="financingFields">
+                        <div class="form-row financing-row">
+                            <div class="form-group">
+                                <label class="required">Down Payment
+                                    <span class="tooltip" data-tip="The amount of cash you'll put down. Can be entered as $ or % of purchase price.">&#9432;</span>
+                                </label>
+                                <div class="input-dual">
+                                    <div class="input-with-prefix flex-grow">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="downPaymentDollar" value="0" min="0">
+                                    </div>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="downPaymentPercent" value="20" min="0" max="100" step="0.1">
+                                        <span class="suffix">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Interest Rate
+                                    <span class="tooltip" data-tip="Annual interest rate on the mortgage.">&#9432;</span>
+                                </label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="interestRate" value="7.0" min="0" step="0.1">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Loan Term
+                                    <span class="tooltip" data-tip="Length of the mortgage in years.">&#9432;</span>
+                                </label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="loanTerm" value="30" min="1" max="50">
+                                    <span class="suffix">years</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Points Charged
+                                    <span class="tooltip" data-tip="Loan origination points. Each point = 1% of loan amount, paid at closing.">&#9432;</span>
+                                </label>
+                                <input type="number" id="loanPoints" value="0" min="0" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RENTAL INCOME -->
+                <section class="card" id="income-section">
+                    <h2 class="section-title">Rental Income</h2>
+
+                    <div class="form-group">
+                        <label class="required">Gross Monthly Income
+                            <span class="tooltip" data-tip="Total monthly rental income from all units before any expenses or vacancy.">&#9432;</span>
+                        </label>
+                        <div class="input-with-prefix">
+                            <span class="prefix">$</span>
+                            <input type="number" id="monthlyIncome" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="toggle-group" style="margin-bottom: 16px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="incomeBreakdownToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Provide income breakdown</span>
+                    </div>
+
+                    <div id="incomeBreakdown" class="sub-section">
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label>Other Monthly Income
+                                    <span class="tooltip" data-tip="Any additional monthly income (laundry, parking, storage, etc).">&#9432;</span>
+                                </label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="otherIncome" value="0" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible">
+                        <button class="collapsible-toggle" onclick="toggleSection(this)">
+                            <span><span class="optional-tag">Optional</span> Income Growth</span>
+                            <span class="chevron">&#9650;</span>
+                        </button>
+                        <div class="collapsible-content open">
+                            <div class="form-group">
+                                <label>Annual Income Growth:
+                                    <span class="tooltip" data-tip="Expected annual increase in rental income.">&#9432;</span>
+                                </label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="incomeGrowth" value="2" min="0" step="0.1">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- EXPENSES -->
+                <section class="card" id="expenses-section">
+                    <h2 class="section-title">Expenses</h2>
+
+                    <div class="form-row two-col">
+                        <div class="form-group">
+                            <label class="required">Property Taxes
+                                <span class="tooltip" data-tip="Annual property tax amount.">&#9432;</span>
+                            </label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="propertyTaxes" value="0" min="0">
+                                </div>
+                                <select id="propertyTaxesPeriod">
+                                    <option value="annual">Annual</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">Insurance
+                                <span class="tooltip" data-tip="Property insurance premium.">&#9432;</span>
+                            </label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="insurance" value="0" min="0">
+                                </div>
+                                <select id="insurancePeriod">
+                                    <option value="annual">Annual</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row four-col">
+                        <div class="form-group">
+                            <label>Repairs & Maintenance:
+                                <span class="tooltip" data-tip="Budget for ongoing repairs, expressed as % of gross monthly income.">&#9432;</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number" id="repairsMaintenance" value="5" min="0" step="0.1">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Capital Expenditures:
+                                <span class="tooltip" data-tip="Reserve for major replacements (roof, HVAC, etc), as % of gross monthly income.">&#9432;</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number" id="capex" value="5" min="0" step="0.1">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Vacancy:
+                                <span class="tooltip" data-tip="Expected vacancy rate as % of gross monthly income.">&#9432;</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number" id="vacancy" value="5" min="0" step="0.1">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Management Fees:
+                                <span class="tooltip" data-tip="Property management fee as % of gross monthly income.">&#9432;</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number" id="managementFees" value="0" min="0" step="0.1">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="hint">Maintenance, vacancy, capital expenditures, and management fees are expressed as percentages of gross monthly income.</p>
+
+                    <div class="form-row three-col">
+                        <div class="form-group">
+                            <label>Electricity:
+                                <span class="tooltip" data-tip="Monthly electricity cost paid by owner.">&#9432;</span>
+                            </label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="electricity" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Gas:
+                                <span class="tooltip" data-tip="Monthly gas cost paid by owner.">&#9432;</span>
+                            </label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="gas" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Water & Sewer:</label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="waterSewer" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row three-col">
+                        <div class="form-group">
+                            <label>HOA Fees:
+                                <span class="tooltip" data-tip="Monthly HOA dues.">&#9432;</span>
+                            </label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="hoa" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Garbage:</label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="garbage" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Other:</label>
+                            <div class="input-row">
+                                <div class="input-with-prefix flex-grow">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="otherExpense" value="0" min="0">
+                                </div>
+                                <span class="period-label">per month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible">
+                        <button class="collapsible-toggle" onclick="toggleSection(this)">
+                            <span><span class="optional-tag">Optional</span> Expense Growth & Sales Expenses</span>
+                            <span class="chevron">&#9650;</span>
+                        </button>
+                        <div class="collapsible-content open">
+                            <div class="form-row two-col">
+                                <div class="form-group">
+                                    <label>Annual Expenses Growth:
+                                        <span class="tooltip" data-tip="Expected annual increase in operating expenses.">&#9432;</span>
+                                    </label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="expenseGrowth" value="2" min="0" step="0.1">
+                                        <span class="suffix">%</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Sales Expenses:
+                                        <span class="tooltip" data-tip="Cost to sell the property (agent commission, closing costs). Typically 6-10% of sale price.">&#9432;</span>
+                                    </label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="salesExpenses" value="7" min="0" step="0.1">
+                                        <span class="suffix">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ANALYZE BUTTON -->
+                <button class="analyze-btn" onclick="calculateAll()">Analyze Deal</button>
+            </div>
+
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="sidebar-nav">
+                    <h3>Build Your Report</h3>
+                    <ul>
+                        <li><a href="#property-info-section" class="nav-check">Property Information</a></li>
+                        <li><a href="#purchase-details-section" class="nav-check">Purchase Details</a></li>
+                        <li><a href="#financing-section" class="nav-check">Financing Details</a></li>
+                        <li><a href="#income-section" class="nav-check active">Rental Income</a></li>
+                        <li><a href="#expenses-section" class="nav-check">Expenses</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results" class="results-container" style="display:none;">
+            <h2 class="results-title">Investment Analysis Results</h2>
+
+            <!-- Quick Rules -->
+            <div class="results-grid rules-grid">
+                <div class="rule-card" id="rule1percent">
+                    <h4>1% Rule</h4>
+                    <div class="rule-value" id="rule1value">--</div>
+                    <div class="rule-status" id="rule1status">--</div>
+                </div>
+                <div class="rule-card" id="rule50percent">
+                    <h4>50% Rule Estimate</h4>
+                    <div class="rule-value" id="rule50value">--</div>
+                    <div class="rule-detail">Est. Monthly Cash Flow</div>
+                </div>
+                <div class="rule-card">
+                    <h4>Gross Rent Multiplier</h4>
+                    <div class="rule-value" id="grmValue">--</div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="results-grid metrics-grid">
+                <div class="metric-card highlight">
+                    <h4>Cash on Cash Return</h4>
+                    <div class="metric-value" id="cocReturn">--</div>
+                </div>
+                <div class="metric-card highlight">
+                    <h4>Monthly Cash Flow</h4>
+                    <div class="metric-value" id="monthlyCashFlow">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Cap Rate</h4>
+                    <div class="metric-value" id="capRate">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>NOI</h4>
+                    <div class="metric-value" id="noiValue">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>DSCR</h4>
+                    <div class="metric-value" id="dscrValue">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Operating Expense Ratio</h4>
+                    <div class="metric-value" id="oerValue">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Total Cash Needed</h4>
+                    <div class="metric-value" id="totalCashNeeded">--</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Monthly Mortgage (P&I)</h4>
+                    <div class="metric-value" id="monthlyMortgage">--</div>
+                </div>
+            </div>
+
+            <!-- Income & Expense Breakdown -->
+            <div class="results-grid two-col-grid">
+                <div class="breakdown-card">
+                    <h3>Monthly Income</h3>
+                    <table class="breakdown-table">
+                        <tbody id="incomeBreakdownTable"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td>Effective Gross Income</td>
+                                <td id="totalEffectiveIncome">$0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="breakdown-card">
+                    <h3>Monthly Expenses</h3>
+                    <table class="breakdown-table">
+                        <tbody id="expenseBreakdownTable"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td>Total Monthly Expenses</td>
+                                <td id="totalMonthlyExpenses">$0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cash Flow Summary -->
+            <div class="cashflow-summary-card">
+                <h3>Cash Flow Summary</h3>
+                <table class="breakdown-table">
+                    <tbody>
+                        <tr><td>Effective Gross Income (monthly)</td><td id="cfIncome">$0</td></tr>
+                        <tr><td>Total Operating Expenses (monthly)</td><td id="cfExpenses" class="negative">-$0</td></tr>
+                        <tr><td>Mortgage Payment P&I (monthly)</td><td id="cfMortgage" class="negative">-$0</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td>Net Monthly Cash Flow</td>
+                            <td id="cfNet">$0</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Net Annual Cash Flow</td>
+                            <td id="cfAnnual">$0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 5-Year Projection -->
+            <div class="projection-card">
+                <h3>5-Year Projection</h3>
+                <div class="table-wrapper">
+                    <table class="projection-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Property Value</th>
+                                <th>Annual Income</th>
+                                <th>Annual Expenses</th>
+                                <th>Annual Mortgage</th>
+                                <th>Cash Flow</th>
+                                <th>Equity</th>
+                                <th>Total ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectionTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SENSITIVITY ANALYSIS -->
+            <div class="sensitivity-card">
+                <h3>Sensitivity Analysis</h3>
+                <p class="hint">See how your returns change when key variables shift from the base case.</p>
+
+                <div class="sensitivity-tabs">
+                    <button class="sens-tab active" onclick="showSensitivity('purchasePrice', this)">Purchase Price</button>
+                    <button class="sens-tab" onclick="showSensitivity('rent', this)">Rent</button>
+                    <button class="sens-tab" onclick="showSensitivity('interestRate', this)">Interest Rate</button>
+                    <button class="sens-tab" onclick="showSensitivity('vacancy', this)">Vacancy</button>
+                    <button class="sens-tab" onclick="showSensitivity('expenses', this)">Expenses</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="sensitivity-table" id="sensitivityTable">
+                        <thead id="sensitivityHead"></thead>
+                        <tbody id="sensitivityBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Two-Variable Matrix -->
+                <h4 style="margin-top: 24px;">Two-Variable Matrix: Purchase Price vs. Rent</h4>
+                <p class="hint">Cash on Cash Return (%) for each combination.</p>
+                <div class="table-wrapper">
+                    <table class="sensitivity-table matrix-table" id="matrixTable">
+                        <thead id="matrixHead"></thead>
+                        <tbody id="matrixBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Noah's Real Estate Investment Calculator &copy; 2026. For educational purposes only. Not financial advice.</p>
+    </footer>
+
+    <script src="calculator.js"></script>
+</body>
+</html>
