@@ -146,28 +146,28 @@ function calculate(inputs) {
 
     // === Monthly Income ===
     const grossMonthlyIncome = monthlyIncome + otherIncome;
-    const vacancyLoss = grossMonthlyIncome * vacancyPct;
-    const effectiveMonthlyIncome = grossMonthlyIncome - vacancyLoss;
 
     // === Monthly Operating Expenses (excludes mortgage) ===
+    // Vacancy is treated as a monthly reserve expense (% of gross income set aside each month)
     const monthlyPropertyTaxes = propertyTaxesPeriod === 'annual' ? propertyTaxes / 12 : propertyTaxes;
     const monthlyInsurance = insurancePeriod === 'annual' ? insurance / 12 : insurance;
     const monthlyRepairs = grossMonthlyIncome * repairsMaintenancePct;
     const monthlyCapex = grossMonthlyIncome * capexPct;
+    const monthlyVacancy = grossMonthlyIncome * vacancyPct;
     const monthlyManagement = grossMonthlyIncome * managementPct;
     const monthlyUtilities = electricity + gas + waterSewer;
     const monthlyOtherFixed = hoa + garbage + otherExpense;
 
     const totalMonthlyOpEx = monthlyPropertyTaxes + monthlyInsurance + monthlyRepairs +
-        monthlyCapex + monthlyManagement + monthlyUtilities + monthlyOtherFixed;
+        monthlyCapex + monthlyVacancy + monthlyManagement + monthlyUtilities + monthlyOtherFixed;
 
     // === NOI ===
-    const annualEffectiveIncome = effectiveMonthlyIncome * 12;
+    const annualGrossIncome = grossMonthlyIncome * 12;
     const annualOpEx = totalMonthlyOpEx * 12;
-    const noi = annualEffectiveIncome - annualOpEx;
+    const noi = annualGrossIncome - annualOpEx;
 
     // === Cash Flow ===
-    const monthlyCashFlow = effectiveMonthlyIncome - totalMonthlyOpEx - monthlyMortgage;
+    const monthlyCashFlow = grossMonthlyIncome - totalMonthlyOpEx - monthlyMortgage;
     const annualCashFlow = monthlyCashFlow * 12;
 
     // === Key Metrics ===
@@ -175,7 +175,7 @@ function calculate(inputs) {
     const cocReturn = totalCashNeeded > 0 ? (annualCashFlow / totalCashNeeded) * 100 : 0;
     const annualDebtService = monthlyMortgage * 12;
     const dscr = annualDebtService > 0 ? noi / annualDebtService : Infinity;
-    const oer = annualEffectiveIncome > 0 ? (annualOpEx / annualEffectiveIncome) * 100 : 0;
+    const oer = annualGrossIncome > 0 ? (annualOpEx / annualGrossIncome) * 100 : 0;
     const grm = (monthlyIncome * 12) > 0 ? purchasePrice / (monthlyIncome * 12) : 0;
 
     // === Quick Rules ===
@@ -210,7 +210,7 @@ function calculate(inputs) {
 
     for (let year = 1; year <= 5; year++) {
         const propertyValue = purchasePrice * Math.pow(1 + appreciationRate, year);
-        const yearlyIncome = annualEffectiveIncome * Math.pow(1 + incomeGrowth, year - 1);
+        const yearlyIncome = annualGrossIncome * Math.pow(1 + incomeGrowth, year - 1);
         const yearlyExpenses = annualOpEx * Math.pow(1 + expenseGrowth, year - 1);
         const yearlyMortgage = annualDebtService;
         const yearlyCashFlow = yearlyIncome - yearlyExpenses - yearlyMortgage;
@@ -237,9 +237,9 @@ function calculate(inputs) {
         downPayment, loanAmount, pointsCost,
 
         // Monthly
-        monthlyMortgage, grossMonthlyIncome, vacancyLoss, effectiveMonthlyIncome,
+        monthlyMortgage, grossMonthlyIncome,
         monthlyPropertyTaxes, monthlyInsurance, monthlyRepairs, monthlyCapex,
-        monthlyManagement, monthlyUtilities, monthlyOtherFixed,
+        monthlyVacancy, monthlyManagement, monthlyUtilities, monthlyOtherFixed,
         totalMonthlyOpEx, monthlyCashFlow,
 
         // Annual
@@ -294,14 +294,13 @@ function renderResults(inputs, r) {
     document.getElementById('totalCashNeeded').textContent = fmt(r.totalCashNeeded);
     document.getElementById('monthlyMortgage').textContent = inputs.isCash ? '$0 (Cash)' : fmtDec(r.monthlyMortgage);
 
-    // Income Breakdown
+    // Income Breakdown (vacancy is now an expense, not an income deduction)
     const incBody = document.getElementById('incomeBreakdownTable');
     incBody.innerHTML = `
         <tr><td>Gross Monthly Rent</td><td>${fmtDec(inputs.monthlyIncome)}</td></tr>
         ${inputs.otherIncome > 0 ? `<tr><td>Other Income</td><td>${fmtDec(inputs.otherIncome)}</td></tr>` : ''}
-        <tr><td>Vacancy Loss (${(inputs.vacancyPct * 100).toFixed(1)}%)</td><td class="negative">-${fmtDec(r.vacancyLoss)}</td></tr>
     `;
-    document.getElementById('totalEffectiveIncome').textContent = fmtDec(r.effectiveMonthlyIncome);
+    document.getElementById('totalEffectiveIncome').textContent = fmtDec(r.grossMonthlyIncome);
 
     // Expense Breakdown
     const expBody = document.getElementById('expenseBreakdownTable');
@@ -310,6 +309,7 @@ function renderResults(inputs, r) {
         <tr><td>Insurance</td><td>${fmtDec(r.monthlyInsurance)}</td></tr>
         <tr><td>Repairs & Maintenance (${(inputs.repairsMaintenancePct * 100).toFixed(1)}%)</td><td>${fmtDec(r.monthlyRepairs)}</td></tr>
         <tr><td>Capital Expenditures (${(inputs.capexPct * 100).toFixed(1)}%)</td><td>${fmtDec(r.monthlyCapex)}</td></tr>
+        <tr><td>Vacancy Reserve (${(inputs.vacancyPct * 100).toFixed(1)}%)</td><td>${fmtDec(r.monthlyVacancy)}</td></tr>
         <tr><td>Management Fees (${(inputs.managementPct * 100).toFixed(1)}%)</td><td>${fmtDec(r.monthlyManagement)}</td></tr>
         <tr><td>Electricity</td><td>${fmtDec(inputs.electricity)}</td></tr>
         <tr><td>Gas</td><td>${fmtDec(inputs.gas)}</td></tr>
@@ -321,7 +321,7 @@ function renderResults(inputs, r) {
     document.getElementById('totalMonthlyExpenses').textContent = fmtDec(r.totalMonthlyOpEx);
 
     // Cash Flow Summary
-    document.getElementById('cfIncome').textContent = fmtDec(r.effectiveMonthlyIncome);
+    document.getElementById('cfIncome').textContent = fmtDec(r.grossMonthlyIncome);
     document.getElementById('cfExpenses').textContent = '-' + fmtDec(r.totalMonthlyOpEx);
     document.getElementById('cfExpenses').className = 'negative';
     document.getElementById('cfMortgage').textContent = '-' + fmtDec(r.monthlyMortgage);
